@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>流動性マンション台帳</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+:root{--color-fg:#1d2128;--color-fg-muted:#5f6672;--color-bg:#f6f7f9;--color-panel:#ffffff;--color-border-line:#dde1e7;--color-ok:#1f7a4d;--color-warn:#9a6700;--color-bad:#c0362c;
+--font-anthropic-sans:"Hiragino Sans","Noto Sans JP","Yu Gothic UI",system-ui,sans-serif;--font-anthropic-serif:"Hiragino Mincho ProN","Noto Serif JP","Yu Mincho",serif;
+--cds-font-size-caption:.8125rem;--cds-font-size-body:.9375rem;--cds-font-size-heading:1.0625rem;--cds-font-size-title:1.75rem;--cds-font-weight-medium:600;
+--cds-gap-xs:.25rem;--cds-gap-sm:.5rem;--cds-gap-md:.75rem;--cds-gap-lg:1rem;--cds-gap-xl:1.5rem;--cds-pad-xs:.3rem;--cds-pad-sm:.5rem;--cds-pad-lg:1rem;--cds-radius:8px;--cds-dur-slow:.3s;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--color-fg:#e6e8ec;--color-fg-muted:#9aa1ac;--color-bg:#14171c;--color-panel:#1c2027;--color-border-line:#2e343d;--color-ok:#5fc48f;--color-warn:#e3b341;--color-bad:#ff7b6f;color-scheme:dark}}
+body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(--font-anthropic-sans)}
+#dash-root{max-width:1280px;margin-inline:auto;padding:1.25rem max(16px,env(safe-area-inset-right,0px)) 2rem max(16px,env(safe-area-inset-left,0px))}
+.dash-skeleton{color:transparent;background:var(--color-border-line);border-radius:4px;min-width:3rem}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script>
+// 台帳用の小さな dash（Claude の台帳と同じ書き方で動かすための置き換え）
+window.dash=(()=>{const ds={},calcs={},subs=[];let ready=false;
+const load=(id,url)=>fetch(url,{cache:'no-store'}).then(r=>r.json()).then(j=>{ds[id]={status:'ok',data:j}}).catch(e=>{ds[id]={status:'error',data:[],message:String(e)}});
+const run=()=>{for(const [id,c] of Object.entries(calcs)){const ins=c.inputs.map(i=>(ds[i]&&ds[i].status==='ok')?ds[i].data:null);if(ins.some(x=>x==null)){ds[id]={status:ins.some((x,k)=>ds[c.inputs[k]]&&ds[c.inputs[k]].status==='error')?'error':'loading',data:[]};continue}try{ds[id]={status:'ok',data:c.fn(...ins)}}catch(e){ds[id]={status:'error',data:[]}}}subs.forEach(f=>f())};
+const api={data:id=>ds[id]||{status:'loading',data:[]},calc:(id,o)=>{calcs[id]=o},onData:f=>{subs.push(f);f()},setLink:n=>{try{history.replaceState(null,'','#'+n)}catch(e){}},colors:[]};
+document.addEventListener('DOMContentLoaded',()=>Promise.all([load('buildings','data/buildings.json'),load('listings','data/listings.json')]).then(run));
+window.addEventListener('resize',()=>subs.forEach(f=>f()));return api})();
+</script>
+</head>
+<body>
+<div id="dash-root">
+<style>
+.lq { font-family: var(--font-anthropic-sans); display: flex; flex-direction: column; gap: var(--cds-gap-xl); }
+.lq-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+.lq-take { margin: var(--cds-gap-xs) 0 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); }
+.lq-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--cds-gap-md); }
+.lq-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); }
+.lq-tile .lab { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.lq-tile .num { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; }
+.lq-tile .note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.lq-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; }
+.lq-card h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.lq-card .sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
+.lq-tools { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+.lq-tools input[type=search] { flex: 1 1 14rem; min-width: 0; padding: var(--cds-pad-xs) var(--cds-pad-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); font: inherit; }
+.lq-seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+.lq-seg button { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-sm); background: var(--color-bg); color: var(--color-fg); border: 0; cursor: pointer; }
+.lq-seg button[aria-pressed=true] { background: var(--color-fg); color: var(--color-bg); }
+.lq-chip { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.lq-chip button { font: inherit; background: none; border: 0; color: var(--color-fg); text-decoration: underline; cursor: pointer; padding: 0 0 0 var(--cds-gap-xs); }
+.lq-wrap { max-height: 34rem; overflow: auto; border-top: 1px solid var(--color-border-line); }
+.lq-wrap.tall { max-height: 44rem; }
+.lq table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.lq th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); border-bottom: 1px solid var(--color-border-line); padding: 0; white-space: nowrap; z-index: 1; }
+.lq th button { font: inherit; color: inherit; background: none; border: 0; padding: var(--cds-pad-xs) var(--cds-pad-sm); cursor: pointer; width: 100%; text-align: inherit; }
+.lq th.r, .lq td.r { text-align: right; }
+.lq td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+.lq td a { color: var(--color-fg); }
+.lq td.nm { min-width: 11rem; }
+.lq td.nm a { font-weight: var(--cds-font-weight-medium); }
+.lq .muted { color: var(--color-fg-muted); }
+.lq .pill { display: inline-block; padding: 0 var(--cds-pad-xs); border-radius: 999px; border: 1px solid var(--color-border-line); white-space: nowrap; }
+.lq .pill.oc { border-color: var(--color-ok); color: var(--color-ok); }
+.lq .cnt { font: inherit; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; cursor: pointer; }
+.lq .cnt.zero { color: var(--color-fg-muted); text-decoration: none; cursor: default; }
+.lq .hide-n { }
+@media (max-width: 720px) { .lq .hide-n { display: none; } }
+.lq [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+.lq .fail { display: flex; align-items: center; justify-content: center; gap: var(--cds-gap-xs); min-height: 6rem; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.lq .fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.lq .foot { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
+</style>
+
+<div class="lq">
+  <header class="lq-head">
+    <h1 id="top">流動性マンション台帳</h1>
+    <p class="lq-take" id="take" data-source="summary">—</p>
+  </header>
+
+  <section class="lq-tiles" aria-label="概要">
+    <div class="lq-tile"><span class="lab">見張っている建物</span><span class="num dash-skeleton" data-source="summary" data-field="buildings">—</span><span class="note">都心9区・80戸以上・売買が多く管理がしっかりした建物</span></div>
+    <div class="lq-tile"><span class="lab">いま売り出し中の部屋</span><span class="num dash-skeleton" data-source="summary" data-field="listings">—</span><span class="note">不動産ジャパン（全件）＋アットホーム（渋谷マンションのみ）</span></div>
+    <div class="lq-tile"><span class="lab">うち賃貸中（狙う部屋）</span><span class="num dash-skeleton" data-source="summary" data-field="oc">—</span><span class="note">賃貸中の部屋を指値で刺す</span></div>
+  </section>
+
+  <section class="lq-card" id="listings">
+    <h2>売り出し中の部屋</h2>
+    <p class="sub">2026年10月27日に取得。物件番号から掲載ページへ。㎡単価は価格÷専有面積。</p>
+    <div class="lq-tools">
+      <input type="search" id="q-list" placeholder="建物名・間取り・不動産会社で絞り込む" aria-label="売り出し中の部屋を絞り込む">
+      <div class="lq-seg" role="group" aria-label="現況">
+        <button type="button" id="f-oc" aria-pressed="true">賃貸中だけ</button>
+        <button type="button" id="f-all" aria-pressed="false">すべて</button>
+      </div>
+      <span class="lq-chip" id="bchip" hidden></span>
+    </div>
+    <div class="lq-wrap">
+      <table id="t-list" data-source="listing_rows" data-row-key="key">
+        <thead><tr>
+          <th data-field="building"><button type="button" data-k="building">建物</button></th>
+          <th data-field="floor"><button type="button" data-k="floor">階</button></th>
+          <th data-field="madori" class="hide-n"><button type="button" data-k="madori">間取り</button></th>
+          <th data-field="area_m2" class="r"><button type="button" data-k="area_m2">面積㎡</button></th>
+          <th data-field="price_man" class="r"><button type="button" data-k="price_man">価格(万円)</button></th>
+          <th data-field="m2_man" class="r"><button type="button" data-k="m2_man">㎡単価(万円)</button></th>
+          <th data-field="genkyo"><button type="button" data-k="genkyo">現況</button></th>
+          <th data-field="site"><button type="button" data-k="site">掲載</button></th>
+          <th data-field="company" class="hide-n"><button type="button" data-k="company">不動産会社</button></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="lq-card" id="buildings">
+    <h2>建物一覧（58棟）</h2>
+    <p class="sub">建物名からマンションレビューへ。売出履歴＝マンションレビューの全期間の売り出し件数、直近1年＝最新20件のうち1年以内（20が上限）。管理会社・修繕積立金はマンションマーケットの表示。</p>
+    <div class="lq-tools">
+      <input type="search" id="q-bldg" placeholder="建物名・区・駅・管理会社で絞り込む" aria-label="建物を絞り込む">
+    </div>
+    <div class="lq-wrap tall">
+      <table id="t-bldg" data-source="buildings" data-row-key="name">
+        <thead><tr>
+          <th data-field="name"><button type="button" data-k="name">建物</button></th>
+          <th data-field="ward"><button type="button" data-k="ward">区</button></th>
+          <th data-field="station" class="hide-n"><button type="button" data-k="station">駅</button></th>
+          <th data-field="built" class="r"><button type="button" data-k="built">築年</button></th>
+          <th data-field="units" class="r"><button type="button" data-k="units">戸数</button></th>
+          <th data-field="hist" class="r"><button type="button" data-k="hist">売出履歴</button></th>
+          <th data-field="n12" class="r hide-n"><button type="button" data-k="n12">直近1年</button></th>
+          <th data-field="avg_days" class="r hide-n"><button type="button" data-k="avg_days">平均日数</button></th>
+          <th data-field="kanri" class="hide-n"><button type="button" data-k="kanri">管理会社</button></th>
+          <th data-field="kanrinin"><button type="button" data-k="kanrinin">管理員</button></th>
+          <th data-field="shuzen_m2" class="r hide-n"><button type="button" data-k="shuzen_m2">修繕円/㎡</button></th>
+          <th data-source="bldg_counts" data-field="onsale" class="r"><button type="button" data-k="onsale">売出中</button></th>
+          <th data-source="bldg_counts" data-field="oc" class="r"><button type="button" data-k="oc">賃貸中</button></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="foot">売り出し中の数をクリックすると、上の表がその建物の部屋に絞られます。</p>
+  </section>
+</div>
+
+<script>
+dash.calc('listing_rows', {
+  title: '売り出し中の部屋（㎡単価つき）',
+  description: '売り出し中の各部屋に、価格÷専有面積の㎡単価（万円）を足したもの。',
+  inputs: ['listings'],
+  fn: (listings) => listings.map(r => ({...r, area_m2: Number(r.area_m2), price_man: Number(r.price_man), m2_man: Number(r.area_m2) ? Math.round(Number(r.price_man) / Number(r.area_m2) * 10) / 10 : null}))
+});
+dash.calc('bldg_counts', {
+  title: '建物ごとの売り出し数',
+  description: '建物ごとに、売り出し中の部屋の数と、そのうち賃貸中の数を数えたもの。',
+  inputs: ['buildings', 'listings'],
+  fn: (buildings, listings) => buildings.map(b => ({name: b.name, onsale: listings.filter(l => l.building === b.name).length, oc: listings.filter(l => l.building === b.name && l.genkyo === '賃貸中').length}))
+});
+dash.calc('summary', {
+  title: '台帳のまとめ',
+  description: '見張っている建物の数、売り出し中の部屋の数、そのうち賃貸中の数。',
+  inputs: ['buildings', 'listings'],
+  fn: (buildings, listings) => [{buildings: buildings.length, listings: listings.length, oc: listings.filter(l => l.genkyo === '賃貸中').length}]
+});
+</script>
+
+<script>
+(() => {
+  const st = { lq: '', lOC: true, lBldg: '', lSort: ['price_man', 1], bq: '', bSort: ['hist', -1] };
+  const fmt = d3.format(',');
+  const num = (v, d) => v == null || v === '' || isNaN(Number(v)) ? '—' : (d ? Number(v).toFixed(d) : fmt(Number(v)));
+  const safeHref = (u) => (typeof u === 'string' && /^https:\/\//.test(u)) ? u : null;
+  const cmp = (k, dir) => (a, b) => {
+    const x = a[k], y = b[k];
+    const nx = typeof x === 'number' ? x : Number(x), ny = typeof y === 'number' ? y : Number(y);
+    if (!isNaN(nx) && !isNaN(ny) && x !== '' && y !== '') return (nx - ny) * dir;
+    return String(x ?? '').localeCompare(String(y ?? ''), 'ja') * dir;
+  };
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const link = (text, href) => { const u = safeHref(href); if (!u) return el('span', null, text); const a = el('a', null, text); a.href = u; a.target = '_blank'; a.rel = 'noopener'; return a; };
+  const failRow = (tb, cols) => { const tr = el('tr'); const td = el('td'); td.colSpan = cols; td.appendChild(el('div', 'fail', '読み込めませんでした')); tr.appendChild(td); tb.replaceChildren(tr); };
+  const setSortMarks = (table, s) => table.querySelectorAll('th').forEach(th => { const k = th.querySelector('button')?.dataset.k; th.setAttribute('aria-sort', k === s[0] ? (s[1] > 0 ? 'ascending' : 'descending') : 'none'); });
+
+  function drawSummary() {
+    const s = dash.data('summary');
+    const tiles = document.querySelectorAll('[data-source="summary"][data-field]');
+    const take = document.getElementById('take');
+    if (s.status !== 'ok' || !s.data.length) {
+      tiles.forEach(t => { t.textContent = '—'; if (s.status !== 'loading') t.classList.remove('dash-skeleton'); });
+      take.textContent = '—';
+      return;
+    }
+    const r = s.data[0];
+    tiles.forEach(t => { t.textContent = num(r[t.dataset.field]); t.classList.remove('dash-skeleton'); });
+    take.textContent = `${num(r.buildings)}棟を見張り中。いま売り出し中は${num(r.listings)}件で、狙う賃貸中の部屋は${num(r.oc)}件。`;
+  }
+
+  function drawListings() {
+    const t = document.getElementById('t-list'), tb = t.querySelector('tbody');
+    const d = dash.data('listing_rows');
+    const chip = document.getElementById('bchip');
+    if (st.lBldg) { chip.hidden = false; chip.replaceChildren(document.createTextNode(`建物：${st.lBldg}`)); const b = el('button', null, '解除'); b.type = 'button'; b.addEventListener('click', () => { st.lBldg = ''; drawListings(); }); chip.appendChild(b); } else { chip.hidden = true; }
+    if (d.status === 'error') return failRow(tb, 9);
+    if (d.status !== 'ok') { tb.replaceChildren(); return; }
+    const q = st.lq.trim().toLowerCase();
+    let rows = d.data.filter(r => (!st.lOC || r.genkyo === '賃貸中') && (!st.lBldg || r.building === st.lBldg) && (!q || [r.building, r.madori, r.company, r.site, r.floor].join(' ').toLowerCase().includes(q)));
+    rows = rows.slice().sort(cmp(st.lSort[0], st.lSort[1]));
+    setSortMarks(t, st.lSort);
+    tb.replaceChildren(...rows.map(r => {
+      const tr = el('tr'); tr.dataset.key = r.key;
+      tr.appendChild(el('td', 'nm', r.building));
+      tr.appendChild(el('td', null, r.floor));
+      tr.appendChild(el('td', 'hide-n', r.madori));
+      tr.appendChild(el('td', 'r', num(r.area_m2, 2)));
+      tr.appendChild(el('td', 'r', num(r.price_man)));
+      tr.appendChild(el('td', 'r', num(r.m2_man, 1)));
+      const g = el('td'); g.appendChild(el('span', 'pill' + (r.genkyo === '賃貸中' ? ' oc' : ''), r.genkyo)); tr.appendChild(g);
+      const s = el('td'); s.appendChild(link(r.site, r.url)); tr.appendChild(s);
+      tr.appendChild(el('td', 'hide-n muted', r.company));
+      return tr;
+    }));
+    if (!rows.length) { const tr = el('tr'); const td = el('td', 'muted', '条件に合う部屋はありません'); td.colSpan = 9; tr.appendChild(td); tb.appendChild(tr); }
+  }
+
+  function drawBuildings() {
+    const t = document.getElementById('t-bldg'), tb = t.querySelector('tbody');
+    const d = dash.data('buildings'), c = dash.data('bldg_counts');
+    if (d.status === 'error') return failRow(tb, 13);
+    if (d.status !== 'ok') { tb.replaceChildren(); return; }
+    const cm = new Map((c.status === 'ok' ? c.data : []).map(r => [r.name, r]));
+    const q = st.bq.trim().toLowerCase();
+    let rows = d.data.map(b => ({...b, built: Number(b.built), units: Number(b.units), hist: Number(b.hist), n12: Number(b.n12), avg_days: b.avg_days == null ? null : Number(b.avg_days), shuzen_m2: Number(b.shuzen_m2), onsale: cm.get(b.name)?.onsale ?? null, oc: cm.get(b.name)?.oc ?? null}))
+      .filter(b => !q || [b.name, b.ward, b.addr, b.station, b.kanri].join(' ').toLowerCase().includes(q));
+    rows.sort(cmp(st.bSort[0], st.bSort[1]));
+    setSortMarks(t, st.bSort);
+    tb.replaceChildren(...rows.map(b => {
+      const tr = el('tr');
+      const n = el('td', 'nm'); n.appendChild(link(b.name, b.mr_url)); tr.appendChild(n);
+      tr.appendChild(el('td', null, b.ward));
+      tr.appendChild(el('td', 'hide-n muted', b.station));
+      tr.appendChild(el('td', 'r', String(b.built)));
+      tr.appendChild(el('td', 'r', num(b.units)));
+      tr.appendChild(el('td', 'r', num(b.hist)));
+      tr.appendChild(el('td', 'r hide-n', num(b.n12)));
+      tr.appendChild(el('td', 'r hide-n', num(b.avg_days)));
+      tr.appendChild(el('td', 'hide-n muted', b.kanri));
+      tr.appendChild(el('td', null, b.kanrinin));
+      tr.appendChild(el('td', 'r hide-n', num(b.shuzen_m2)));
+      const mk = (v, oc) => { const td = el('td', 'r'); if (v == null) { td.textContent = '—'; return td; } const btn = el('button', 'cnt' + (v ? '' : ' zero'), num(v)); btn.type = 'button'; if (v) btn.addEventListener('click', () => { st.lBldg = b.name; st.lOC = oc; syncSeg(); drawListings(); document.getElementById('listings').scrollIntoView({behavior: 'smooth', block: 'start'}); }); else btn.disabled = true; td.appendChild(btn); return td; };
+      tr.appendChild(mk(b.onsale, false));
+      tr.appendChild(mk(b.oc, true));
+      return tr;
+    }));
+  }
+
+  const syncSeg = () => { document.getElementById('f-oc').setAttribute('aria-pressed', String(st.lOC)); document.getElementById('f-all').setAttribute('aria-pressed', String(!st.lOC)); };
+  document.getElementById('f-oc').addEventListener('click', () => { st.lOC = true; syncSeg(); drawListings(); });
+  document.getElementById('f-all').addEventListener('click', () => { st.lOC = false; syncSeg(); drawListings(); });
+  document.getElementById('q-list').addEventListener('input', e => { st.lq = e.target.value; drawListings(); });
+  document.getElementById('q-bldg').addEventListener('input', e => { st.bq = e.target.value; drawBuildings(); });
+  const sortable = (id, key, redraw) => document.querySelectorAll(`#${id} th button`).forEach(b => b.addEventListener('click', () => { const s = st[key]; st[key] = s[0] === b.dataset.k ? [s[0], -s[1]] : [b.dataset.k, 1]; redraw(); }));
+  sortable('t-list', 'lSort', drawListings);
+  sortable('t-bldg', 'bSort', drawBuildings);
+
+  dash.onData(() => { drawSummary(); drawListings(); drawBuildings(); });
+  const named = document.getElementById(location.hash.slice(1));
+  if (named) { named.scrollIntoView(); dash.setLink(named.id); }
+})();
+</script>
+
+<p class="foot" style="margin-top:1.5rem;font-size:.8125rem;color:var(--color-fg-muted)">データ：data/buildings.json（58棟）・data/listings.json（売り出し中の部屋）。更新は Claude に「台帳を更新して」。</p>
+</div>
+</body>
+</html>
