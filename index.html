@@ -33,6 +33,11 @@ window.addEventListener('resize',()=>subs.forEach(f=>f()));return api})();
 .lq-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
 .lq-take { margin: var(--cds-gap-xs) 0 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); }
 .lq-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--cds-gap-md); }
+.lq-how { display: grid; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); max-width: 75ch; }
+.lq-how b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+.lq .pill.buy { border-color: var(--color-ok); background: var(--color-ok); color: var(--color-bg); }
+.lq .pill.near { border-color: var(--color-warn); color: var(--color-warn); }
+.lq .pill.warn { border-color: var(--color-bad); color: var(--color-bad); }
 .lq-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); }
 .lq-tile .lab { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
 .lq-tile .num { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; }
@@ -76,15 +81,21 @@ window.addEventListener('resize',()=>subs.forEach(f=>f()));return api})();
     <p class="lq-take" id="take" data-source="summary">—</p>
   </header>
 
+  <section class="lq-how" aria-label="目安の見方">
+    <div><b>空室で売れそう</b>：同じ建物の最近の売り出し（マンションレビュー・最新20件、同じくらいの広さの部屋）の㎡単価の真ん中を1割下げた、安全側の値段。</div>
+    <div><b>狙い目</b>：その値段で空室にして売り、買う時の諸費用（5.6%）と売る時の費用（仲介3.3%＋6.6万円、補修など100万円）を全部引いても、入れたお金の<b>15%</b>が残る価格。<b>上限</b>は13.5%が残る価格。持っている間の家賃は含めていない（上乗せ）。修繕の一時金も含めていない。</div>
+  </section>
+
   <section class="lq-tiles" aria-label="概要">
     <div class="lq-tile"><span class="lab">見張っている建物</span><span class="num dash-skeleton" data-source="summary" data-field="buildings">—</span><span class="note">都心9区・80戸以上・売買が多く管理がしっかりした建物</span></div>
     <div class="lq-tile"><span class="lab">いま売り出し中の部屋</span><span class="num dash-skeleton" data-source="summary" data-field="listings">—</span><span class="note">不動産ジャパン（全件）＋アットホーム（渋谷マンションのみ）</span></div>
     <div class="lq-tile"><span class="lab">うち賃貸中（狙う部屋）</span><span class="num dash-skeleton" data-source="summary" data-field="oc">—</span><span class="note">賃貸中の部屋を指値で刺す</span></div>
+    <div class="lq-tile"><span class="lab">狙い目以下で出ている賃貸中</span><span class="num dash-skeleton" data-source="summary" data-field="buy">—</span><span class="note">判定が「買い候補」の部屋</span></div>
   </section>
 
   <section class="lq-card" id="listings">
     <h2>売り出し中の部屋</h2>
-    <p class="sub">2026年10月27日に取得。物件番号から掲載ページへ。㎡単価は価格÷専有面積。</p>
+    <p class="sub">2026年10月27日に取得。「掲載」から掲載ページへ。賃貸中は、狙い目まであと何万円の指値が要るかの順。</p>
     <div class="lq-tools">
       <input type="search" id="q-list" placeholder="建物名・間取り・不動産会社で絞り込む" aria-label="売り出し中の部屋を絞り込む">
       <div class="lq-seg" role="group" aria-label="現況">
@@ -103,6 +114,11 @@ window.addEventListener('resize',()=>subs.forEach(f=>f()));return api})();
           <th data-field="price_man" class="r"><button type="button" data-k="price_man">価格(万円)</button></th>
           <th data-field="m2_man" class="r"><button type="button" data-k="m2_man">㎡単価(万円)</button></th>
           <th data-field="genkyo"><button type="button" data-k="genkyo">現況</button></th>
+          <th data-field="exit_price" class="r"><button type="button" data-k="exit_price">空室なら(万円)</button></th>
+          <th data-field="aim_price" class="r"><button type="button" data-k="aim_price">狙い目(万円)</button></th>
+          <th data-field="max_price" class="r hide-n"><button type="button" data-k="max_price">上限(万円)</button></th>
+          <th data-field="cut_needed" class="r"><button type="button" data-k="cut_needed">あと指値(万円)</button></th>
+          <th data-field="judge"><button type="button" data-k="judge">判定</button></th>
           <th data-field="site"><button type="button" data-k="site">掲載</button></th>
           <th data-field="company" class="hide-n"><button type="button" data-k="company">不動産会社</button></th>
         </tr></thead>
@@ -113,7 +129,7 @@ window.addEventListener('resize',()=>subs.forEach(f=>f()));return api})();
 
   <section class="lq-card" id="buildings">
     <h2>建物一覧（58棟）</h2>
-    <p class="sub">建物名からマンションレビューへ。売出履歴＝マンションレビューの全期間の売り出し件数、直近1年＝最新20件のうち1年以内（20が上限）。管理会社・修繕積立金はマンションマーケットの表示。</p>
+    <p class="sub">建物名からマンションレビューへ。㎡単価の目安は、その建物の典型的な広さの部屋での値（狭い部屋ほど㎡単価は高く出る）。売出履歴＝全期間の売り出し件数、直近1年＝最新20件のうち1年以内（20が上限）。修繕積立金は毎月の積立を1㎡あたりにしたもので、建物のお金の健全さの目安（200円以上で選んだ）。管理会社・修繕積立金はマンションマーケットの表示。</p>
     <div class="lq-tools">
       <input type="search" id="q-bldg" placeholder="建物名・区・駅・管理会社で絞り込む" aria-label="建物を絞り込む">
     </div>
@@ -130,7 +146,9 @@ window.addEventListener('resize',()=>subs.forEach(f=>f()));return api})();
           <th data-field="avg_days" class="r hide-n"><button type="button" data-k="avg_days">平均日数</button></th>
           <th data-field="kanri" class="hide-n"><button type="button" data-k="kanri">管理会社</button></th>
           <th data-field="kanrinin"><button type="button" data-k="kanrinin">管理員</button></th>
-          <th data-field="shuzen_m2" class="r hide-n"><button type="button" data-k="shuzen_m2">修繕円/㎡</button></th>
+          <th data-field="exit_m2" class="r"><button type="button" data-k="exit_m2">空室で売れそう ㎡単価(万円)</button></th>
+          <th data-field="aim_m2" class="r"><button type="button" data-k="aim_m2">賃貸中の狙い目 ㎡単価(万円)</button></th>
+          <th data-field="shuzen_m2" class="r hide-n"><button type="button" data-k="shuzen_m2">修繕積立金(円/㎡・月)</button></th>
           <th data-source="bldg_counts" data-field="onsale" class="r"><button type="button" data-k="onsale">売出中</button></th>
           <th data-source="bldg_counts" data-field="oc" class="r"><button type="button" data-k="oc">賃貸中</button></th>
         </tr></thead>
@@ -146,7 +164,7 @@ dash.calc('listing_rows', {
   title: '売り出し中の部屋（㎡単価つき）',
   description: '売り出し中の各部屋に、価格÷専有面積の㎡単価（万円）を足したもの。',
   inputs: ['listings'],
-  fn: (listings) => listings.map(r => ({...r, area_m2: Number(r.area_m2), price_man: Number(r.price_man), m2_man: Number(r.area_m2) ? Math.round(Number(r.price_man) / Number(r.area_m2) * 10) / 10 : null}))
+  fn: (listings) => listings.map(r => ({...r, area_m2: Number(r.area_m2), price_man: Number(r.price_man), exit_price: Number(r.exit_price), aim_price: Number(r.aim_price), max_price: Number(r.max_price), cut_needed: r.cut_needed == null ? null : Number(r.cut_needed), m2_man: Number(r.area_m2) ? Math.round(Number(r.price_man) / Number(r.area_m2) * 10) / 10 : null}))
 });
 dash.calc('bldg_counts', {
   title: '建物ごとの売り出し数',
@@ -156,15 +174,15 @@ dash.calc('bldg_counts', {
 });
 dash.calc('summary', {
   title: '台帳のまとめ',
-  description: '見張っている建物の数、売り出し中の部屋の数、そのうち賃貸中の数。',
+  description: '見張っている建物の数、売り出し中の部屋の数、そのうち賃貸中の数、判定が買い候補の数。',
   inputs: ['buildings', 'listings'],
-  fn: (buildings, listings) => [{buildings: buildings.length, listings: listings.length, oc: listings.filter(l => l.genkyo === '賃貸中').length}]
+  fn: (buildings, listings) => [{buildings: buildings.length, listings: listings.length, oc: listings.filter(l => l.genkyo === '賃貸中').length, buy: listings.filter(l => /^買い候補/.test(l.judge)).length}]
 });
 </script>
 
 <script>
 (() => {
-  const st = { lq: '', lOC: true, lBldg: '', lSort: ['price_man', 1], bq: '', bSort: ['hist', -1] };
+  const st = { lq: '', lOC: true, lBldg: '', lSort: ['cut_needed', 1], bq: '', bSort: ['hist', -1] };
   const fmt = d3.format(',');
   const num = (v, d) => v == null || v === '' || isNaN(Number(v)) ? '—' : (d ? Number(v).toFixed(d) : fmt(Number(v)));
   const safeHref = (u) => (typeof u === 'string' && /^https:\/\//.test(u)) ? u : null;
@@ -190,7 +208,7 @@ dash.calc('summary', {
     }
     const r = s.data[0];
     tiles.forEach(t => { t.textContent = num(r[t.dataset.field]); t.classList.remove('dash-skeleton'); });
-    take.textContent = `${num(r.buildings)}棟を見張り中。いま売り出し中は${num(r.listings)}件で、狙う賃貸中の部屋は${num(r.oc)}件。`;
+    take.textContent = `${num(r.buildings)}棟を見張り中。売り出し中${num(r.listings)}件のうち賃貸中は${num(r.oc)}件、狙い目以下で出ているのは${num(r.buy)}件。`;
   }
 
   function drawListings() {
@@ -198,7 +216,7 @@ dash.calc('summary', {
     const d = dash.data('listing_rows');
     const chip = document.getElementById('bchip');
     if (st.lBldg) { chip.hidden = false; chip.replaceChildren(document.createTextNode(`建物：${st.lBldg}`)); const b = el('button', null, '解除'); b.type = 'button'; b.addEventListener('click', () => { st.lBldg = ''; drawListings(); }); chip.appendChild(b); } else { chip.hidden = true; }
-    if (d.status === 'error') return failRow(tb, 9);
+    if (d.status === 'error') return failRow(tb, 14);
     if (d.status !== 'ok') { tb.replaceChildren(); return; }
     const q = st.lq.trim().toLowerCase();
     let rows = d.data.filter(r => (!st.lOC || r.genkyo === '賃貸中') && (!st.lBldg || r.building === st.lBldg) && (!q || [r.building, r.madori, r.company, r.site, r.floor].join(' ').toLowerCase().includes(q)));
@@ -213,21 +231,26 @@ dash.calc('summary', {
       tr.appendChild(el('td', 'r', num(r.price_man)));
       tr.appendChild(el('td', 'r', num(r.m2_man, 1)));
       const g = el('td'); g.appendChild(el('span', 'pill' + (r.genkyo === '賃貸中' ? ' oc' : ''), r.genkyo)); tr.appendChild(g);
+      tr.appendChild(el('td', 'r', num(r.exit_price)));
+      tr.appendChild(el('td', 'r', num(r.aim_price)));
+      tr.appendChild(el('td', 'r hide-n', num(r.max_price)));
+      tr.appendChild(el('td', 'r', r.cut_needed == null ? '—' : num(r.cut_needed)));
+      const jd = el('td'); const jc = /^買い候補/.test(r.judge) ? ' buy' : /^上限内/.test(r.judge) ? ' near' : /誤り/.test(r.judge) ? ' warn' : ''; jd.appendChild(el('span', 'pill' + jc, r.judge)); tr.appendChild(jd);
       const s = el('td'); s.appendChild(link(r.site, r.url)); tr.appendChild(s);
       tr.appendChild(el('td', 'hide-n muted', r.company));
       return tr;
     }));
-    if (!rows.length) { const tr = el('tr'); const td = el('td', 'muted', '条件に合う部屋はありません'); td.colSpan = 9; tr.appendChild(td); tb.appendChild(tr); }
+    if (!rows.length) { const tr = el('tr'); const td = el('td', 'muted', '条件に合う部屋はありません'); td.colSpan = 14; tr.appendChild(td); tb.appendChild(tr); }
   }
 
   function drawBuildings() {
     const t = document.getElementById('t-bldg'), tb = t.querySelector('tbody');
     const d = dash.data('buildings'), c = dash.data('bldg_counts');
-    if (d.status === 'error') return failRow(tb, 13);
+    if (d.status === 'error') return failRow(tb, 15);
     if (d.status !== 'ok') { tb.replaceChildren(); return; }
     const cm = new Map((c.status === 'ok' ? c.data : []).map(r => [r.name, r]));
     const q = st.bq.trim().toLowerCase();
-    let rows = d.data.map(b => ({...b, built: Number(b.built), units: Number(b.units), hist: Number(b.hist), n12: Number(b.n12), avg_days: b.avg_days == null ? null : Number(b.avg_days), shuzen_m2: Number(b.shuzen_m2), onsale: cm.get(b.name)?.onsale ?? null, oc: cm.get(b.name)?.oc ?? null}))
+    let rows = d.data.map(b => ({...b, built: Number(b.built), units: Number(b.units), hist: Number(b.hist), n12: Number(b.n12), avg_days: b.avg_days == null ? null : Number(b.avg_days), shuzen_m2: Number(b.shuzen_m2), exit_m2: b.exit_m2 == null ? null : Number(b.exit_m2), aim_m2: b.aim_m2 == null ? null : Number(b.aim_m2), onsale: cm.get(b.name)?.onsale ?? null, oc: cm.get(b.name)?.oc ?? null}))
       .filter(b => !q || [b.name, b.ward, b.addr, b.station, b.kanri].join(' ').toLowerCase().includes(q));
     rows.sort(cmp(st.bSort[0], st.bSort[1]));
     setSortMarks(t, st.bSort);
@@ -243,6 +266,8 @@ dash.calc('summary', {
       tr.appendChild(el('td', 'r hide-n', num(b.avg_days)));
       tr.appendChild(el('td', 'hide-n muted', b.kanri));
       tr.appendChild(el('td', null, b.kanrinin));
+      tr.appendChild(el('td', 'r', num(b.exit_m2, 1)));
+      tr.appendChild(el('td', 'r', num(b.aim_m2, 1)));
       tr.appendChild(el('td', 'r hide-n', num(b.shuzen_m2)));
       const mk = (v, oc) => { const td = el('td', 'r'); if (v == null) { td.textContent = '—'; return td; } const btn = el('button', 'cnt' + (v ? '' : ' zero'), num(v)); btn.type = 'button'; if (v) btn.addEventListener('click', () => { st.lBldg = b.name; st.lOC = oc; syncSeg(); drawListings(); document.getElementById('listings').scrollIntoView({behavior: 'smooth', block: 'start'}); }); else btn.disabled = true; td.appendChild(btn); return td; };
       tr.appendChild(mk(b.onsale, false));
