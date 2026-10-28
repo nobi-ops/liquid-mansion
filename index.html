@@ -175,7 +175,7 @@ window.addEventListener('resize',()=>subs.forEach(f=>f()));return api})();
 
 <template id="tpl-yield">
   <section class="lq-how" aria-label="高利回りの見方">
-    <div><b>何の一覧か</b>：健美家の都心9区（千代田・中央・港・新宿・文京・渋谷・目黒・品川・世田谷）の区分のうち、駅徒歩7分以内・所有権・賃貸中で、<b>売り出し価格のままで手取り4.5%以上</b>、管理費等が家賃の2割以下の部屋。自主管理・管理費の記載なし・18㎡未満・100㎡超、レンタルスペースや民泊の運営売上で利回りを出している部屋は除く。戸数では切らない。</div>
+    <div><b>何の一覧か</b>：健美家の都心9区（千代田・中央・港・新宿・文京・渋谷・目黒・品川・世田谷）の区分のうち、駅徒歩7分以内・所有権・賃貸中で、<b>売り出し価格のままで手取り4.5%以上</b>、管理費等が家賃の2割以下の部屋。自主管理・管理費の記載なし・18㎡未満・100㎡超、レンタルスペースや民泊の運営売上で利回りを出している部屋は除く。戸数では切らない。業者が売主の部屋（ランドネット等）は外す。<b>元付・取引</b>は同じ部屋を不動産ジャパンで探した結果（専任・一般と元付の会社）。「不動産ジャパンに無し」は健美家・楽待だけの掲載で、業者が売主か、元付でない会社の転載のことが多い。</div>
     <div><b>手取り</b>＝（年間家賃 − 管理費等×12 − 家賃×5%（管理委託） − 固定資産税の推定）÷（価格×1.07）。<b>6%の指値</b>＝手取り6%になる価格。毎朝4:30の見張りで新着・値下げを足す。</div>
   </section>
   <section class="lq-tiles" aria-label="高利回りの概要">
@@ -207,6 +207,7 @@ window.addEventListener('resize',()=>subs.forEach(f=>f()));return api})();
           <th data-field="rent_year_man" class="r hide-n"><button type="button" data-k="rent_year_man">家賃(万円/年)</button></th>
           <th data-field="fee_month" class="r hide-n"><button type="button" data-k="fee_month">管理費等(円/月)</button></th>
           <th data-field="fee_ratio" class="r hide-n"><button type="button" data-k="fee_ratio">家賃比%</button></th>
+          <th data-field="motoduke"><button type="button" data-k="motoduke">元付・取引</button></th>
           <th data-field="net_pct" class="r"><button type="button" data-k="net_pct">手取り%</button></th>
           <th data-field="sashine6_man" class="r"><button type="button" data-k="sashine6_man">6%の指値(万円)</button></th>
           <th data-field="first_seen" class="hide-n"><button type="button" data-k="first_seen">見つけた日</button></th>
@@ -362,7 +363,7 @@ dash.calc('summary', {
     });
     const t = document.getElementById('t-yield'), tb = t.querySelector('tbody');
     const d = dash.data('yield_hits');
-    if (d.status === 'error') return failRow(tb, 14);
+    if (d.status === 'error') return failRow(tb, 15);
     if (d.status !== 'ok') { tb.replaceChildren(); return; }
     const q = yst.q.trim().toLowerCase();
     let rows = d.data.map(r => ({...r, walk: Number(r.walk), price_man: Number(r.price_man), area_m2: Number(r.area_m2), built: Number(r.built), units: r.units == null ? null : Number(r.units), rent_year_man: Number(r.rent_year_man), fee_month: Number(r.fee_month), fee_ratio: Number(r.fee_ratio), net_pct: Number(r.net_pct), sashine6_man: Number(r.sashine6_man)}))
@@ -381,13 +382,14 @@ dash.calc('summary', {
       tr.appendChild(el('td', 'r hide-n', num(r.rent_year_man, 1)));
       tr.appendChild(el('td', 'r hide-n', num(r.fee_month)));
       tr.appendChild(el('td', 'r hide-n', num(r.fee_ratio)));
+      tr.appendChild(el('td', r.motoduke === '不動産ジャパンに無し' ? 'muted' : null, r.motoduke));
       const n = el('td', 'r'); n.appendChild(el('span', 'pill' + (r.net_pct >= 6 ? ' hi' : r.net_pct >= 5.5 ? ' oc' : ''), num(r.net_pct, 1))); tr.appendChild(n);
       tr.appendChild(el('td', 'r', num(r.sashine6_man)));
       tr.appendChild(el('td', 'hide-n muted', r.first_seen));
       const s = el('td'); s.appendChild(link(r.site, r.url)); tr.appendChild(s);
       return tr;
     }));
-    if (!rows.length) { const tr = el('tr'); const td = el('td', 'muted', '条件に合う部屋はありません'); td.colSpan = 14; tr.appendChild(td); tb.appendChild(tr); }
+    if (!rows.length) { const tr = el('tr'); const td = el('td', 'muted', '条件に合う部屋はありません'); td.colSpan = 15; tr.appendChild(td); tb.appendChild(tr); }
   }
   function mountYield() {
     if (yst.ready) return;
