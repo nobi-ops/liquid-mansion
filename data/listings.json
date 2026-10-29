@@ -1915,5 +1915,26 @@
   "max_price": 2959,
   "judge": "対象外（空室・居住中）",
   "cut_needed": null
+ },
+ {
+  "key": "AH1131761008",
+  "building": "NK渋谷コータース",
+  "site": "アットホーム",
+  "floor": "9階",
+  "madori": "4LDK",
+  "area_m2": 89.29,
+  "price_man": 11900,
+  "genkyo": "不明（空室か居住中）",
+  "company": "",
+  "url": "https://www.athome.co.jp/mansion/1131761008/",
+  "exit_m2": 107.8,
+  "comp_n": 8,
+  "basis": "建物の相場（自動・要確認）",
+  "first_seen": "2026-10-30",
+  "exit_price": 9625,
+  "aim_price": 7576,
+  "max_price": 7676,
+  "judge": "対象外（空室・居住中）",
+  "cut_needed": null
  }
 ]
