@@ -790,14 +790,14 @@
   "floor": "4階",
   "madori": "2LDK",
   "area_m2": 58.79,
-  "price_man": 5780,
+  "price_man": 5580,
   "genkyo": "空家",
   "company": "野村の仲介＋ 四谷センター 野村不動産ソリューションズ（株）",
   "url": "https://www.fudousan.or.jp/property/detail?p_no=000013583878",
   "exit_m2": 87.7,
-  "exit_price": 5157,
-  "aim_price": 4019,
-  "max_price": 4072,
+  "exit_price": 5156,
+  "aim_price": 4017,
+  "max_price": 4070,
   "comp_n": 6,
   "judge": "対象外（空室・居住中）",
   "cut_needed": null,
@@ -1030,12 +1030,12 @@
   "floor": "3階",
   "madori": "1LDK",
   "area_m2": 45.18,
-  "price_man": 6480,
+  "price_man": 6180,
   "genkyo": "所有者居住中",
   "company": "住友不動産ステップ（株）六本木営業センター",
   "url": "https://www.fudousan.or.jp/property/detail?p_no=000013821563",
   "exit_m2": 111.4,
-  "exit_price": 5032,
+  "exit_price": 5033,
   "aim_price": 3919,
   "max_price": 3971,
   "comp_n": 5,
@@ -1379,9 +1379,10 @@
   "aim_price": 9778,
   "max_price": 9908,
   "comp_n": 7,
-  "judge": "対象外（空室・居住中）",
+  "judge": "掲載終了（11/1・売れたか取り下げ）",
   "cut_needed": null,
-  "basis": "同じくらいの広さ"
+  "basis": "同じくらいの広さ",
+  "judge_before_end": "対象外（空室・居住中）"
  },
  {
   "key": "FJ13294040",
@@ -1811,8 +1812,9 @@
   "exit_price": 8015,
   "aim_price": 6294,
   "max_price": 6377,
-  "judge": "対象外（空室・居住中）",
-  "cut_needed": null
+  "judge": "掲載終了（11/1・売れたか取り下げ）",
+  "cut_needed": null,
+  "judge_before_end": "対象外（空室・居住中）"
  },
  {
   "key": "AH1151310931",
@@ -1832,8 +1834,9 @@
   "exit_price": 5084,
   "aim_price": 3960,
   "max_price": 4012,
-  "judge": "対象外（空室・居住中）",
-  "cut_needed": null
+  "judge": "掲載終了（11/1・売れたか取り下げ）",
+  "cut_needed": null,
+  "judge_before_end": "対象外（空室・居住中）"
  },
  {
   "key": "AH1151918531",
@@ -1853,9 +1856,8 @@
   "exit_price": 5579,
   "aim_price": 4354,
   "max_price": 4412,
-  "judge": "掲載終了（10/31・売れたか取り下げ）",
-  "cut_needed": null,
-  "judge_before_end": "対象外（空室・居住中）"
+  "judge": "対象外（空室・居住中）",
+  "cut_needed": null
  },
  {
   "key": "AH1152820614",
