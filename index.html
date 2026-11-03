@@ -22,7 +22,7 @@ window.dash=(()=>{const ds={},calcs={},subs=[];let ready=false;
 const load=(id,url)=>fetch(url,{cache:'no-store'}).then(r=>r.json()).then(j=>{ds[id]={status:'ok',data:j}}).catch(e=>{ds[id]={status:'error',data:[],message:String(e)}});
 const run=()=>{for(const [id,c] of Object.entries(calcs)){const ins=c.inputs.map(i=>(ds[i]&&ds[i].status==='ok')?ds[i].data:null);if(ins.some(x=>x==null)){ds[id]={status:ins.some((x,k)=>ds[c.inputs[k]]&&ds[c.inputs[k]].status==='error')?'error':'loading',data:[]};continue}try{ds[id]={status:'ok',data:c.fn(...ins)}}catch(e){ds[id]={status:'error',data:[]}}}subs.forEach(f=>f())};
 const api={data:id=>ds[id]||{status:'loading',data:[]},calc:(id,o)=>{calcs[id]=o},onData:f=>{subs.push(f);f()},setLink:n=>{try{history.replaceState(null,'','#'+n)}catch(e){}},colors:[]};
-document.addEventListener('DOMContentLoaded',()=>Promise.all([load('buildings','data/buildings.json'),load('listings','data/listings.json'),load('yield_hits','data/yield_hits.json')]).then(run));
+document.addEventListener('DOMContentLoaded',()=>Promise.all([load('buildings','data/buildings.json'),load('listings','data/listings.json'),load('yield_hits','data/yield_hits.json'),load('urinushi','data/urinushi.json')]).then(run));
 window.addEventListener('resize',()=>subs.forEach(f=>f()));return api})();
 </script>
 </head>
@@ -78,6 +78,7 @@ window.addEventListener('resize',()=>subs.forEach(f=>f()));return api})();
 .lq-tabs button[aria-selected=true] { background: var(--color-fg); color: var(--color-bg); }
 .lq-page { display: flex; flex-direction: column; gap: var(--cds-gap-xl); }
 .lq-page[hidden] { display: none; }
+.lq td.note-c { min-width: 26rem; }
 .lq .pill.hi { border-color: var(--color-ok); background: var(--color-ok); color: var(--color-bg); }
 </style>
 
@@ -88,6 +89,7 @@ window.addEventListener('resize',()=>subs.forEach(f=>f()));return api})();
     <div class="lq-tabs" role="tablist" aria-label="表示の切り替え">
       <button type="button" role="tab" id="tab-ledger" aria-selected="true">台帳</button>
       <button type="button" role="tab" id="tab-yield" aria-selected="false">高利回り</button>
+      <button type="button" role="tab" id="tab-uri" aria-selected="false">売主（業者）</button>
     </div>
   </header>
 
@@ -171,6 +173,7 @@ window.addEventListener('resize',()=>subs.forEach(f=>f()));return api})();
   </div>
 
   <div class="lq-page" id="yield" hidden></div>
+  <div class="lq-page" id="uri" hidden></div>
 </div>
 
 <template id="tpl-yield">
@@ -219,6 +222,55 @@ window.addEventListener('resize',()=>subs.forEach(f=>f()));return api})();
   </section>
 </template>
 
+<template id="tpl-uri">
+  <section class="lq-how" aria-label="売主（業者）の見方">
+    <div><b>何の一覧か</b>：不動産ジャパンの都心14区（千代田・中央・港・新宿・文京・台東・墨田・江東・品川・目黒・渋谷・中野・豊島・世田谷）の中古マンションで、オーナーチェンジの印が付いた6,000万円以下のうち、<b>取引態様が「売主」</b>（業者が自分で売っている）部屋。仕入れたが持ちきれない買取再販業者が、決算前などに値を下げてくるのを拾う狙い。業者が売主なので<b>仲介手数料がかからない</b>。オーナーチェンジの印を付けずに出している業者も多く、これが全部ではない。</div>
+    <div><b>業者の仕入れ値</b>＝空室になったとき、改装せずに業者へ売るといくらか（出口）。同じ建物のマンションレビューの売出のうち、未改装で3日以内に消えたもの（業者の仕入れと見る）の㎡単価。無ければ改装済みの売出×0.72（改装費・業者の諸費用・利益を引いた値）、それも無ければ未改装の売出×0.8。<b>家賃</b>は同じ建物の賃料履歴（同じくらいの広さ）の㎡単価×面積の推定で、実際の家賃ではない。<b>手取り</b>＝（家賃−管理費等−家賃の5%（管理委託）−価格の0.2%（固都税）−1万）÷（価格×1.035）。<b>確からしさ</b>：強＝業者が仕入れて改装し高く再掲した実例あり、中＝未改装で3日以内に消えた売出（成約か業者の仕入れとみる）、弱＝改装済み・未改装の売出からの推定（成約ではない）。<b>4.1%に並ぶ買値</b>＝5年後に空室になり業者の仕入れ値で売ったとき（売却費用3.5%）、奈良町ハイツの繰上返済4.1%と同じ利回りになる買値。これより安ければ繰上返済に勝つ。</div>
+  </section>
+  <section class="lq-tiles" aria-label="売主（業者）の概要">
+    <div class="lq-tile"><span class="lab">業者が売主の部屋</span><span class="num dash-skeleton" data-source="uri_summary" data-field="n">—</span><span class="note">オーナーチェンジの印付き・6,000万円以下</span></div>
+    <div class="lq-tile"><span class="lab">業者の数</span><span class="num dash-skeleton" data-source="uri_summary" data-field="cos">—</span><span class="note">会社ごとの件数は下の表</span></div>
+    <div class="lq-tile"><span class="lab">4.1%に並ぶ買値以下</span><span class="num dash-skeleton" data-source="uri_summary" data-field="win">—</span><span class="note">売り出しのままで繰上返済に勝つ（確からしさ「弱」を含む）</span></div>
+    <div class="lq-tile"><span class="lab">あと1割の値下げで届く</span><span class="num dash-skeleton" data-source="uri_summary" data-field="near">—</span><span class="note">決算前の値下げを待つ候補</span></div>
+  </section>
+  <section class="lq-card" id="uri-list">
+    <h2>業者が売主の部屋</h2>
+    <p class="sub">所在地から不動産ジャパンの掲載へ、「MR」からマンションレビューの建物ページへ。必要な値下げの小さい順。</p>
+    <div class="lq-tools">
+      <input type="search" id="q-uri" placeholder="会社・所在地・建物・駅で絞り込む" aria-label="売主の部屋を絞り込む">
+      <span class="lq-chip" id="uchip" hidden></span>
+    </div>
+    <div class="lq-wrap tall">
+      <table id="t-uri" data-source="urinushi" data-row-key="key">
+        <thead><tr>
+          <th data-field="company"><button type="button" data-k="company">売主</button></th>
+          <th data-field="addr"><button type="button" data-k="addr">所在地・建物</button></th>
+          <th data-field="built" class="r"><button type="button" data-k="built">築年</button></th>
+          <th data-field="area_m2" class="r"><button type="button" data-k="area_m2">面積㎡</button></th>
+          <th data-field="price_man" class="r"><button type="button" data-k="price_man">価格(万円)</button></th>
+          <th data-field="m2_man" class="r hide-n"><button type="button" data-k="m2_man">㎡単価(万円)</button></th>
+          <th data-field="fee_month" class="r hide-n"><button type="button" data-k="fee_month">管理費等(円/月)</button></th>
+          <th data-field="rent_month" class="r hide-n"><button type="button" data-k="rent_month">家賃推定(円/月)</button></th>
+          <th data-field="net_pct" class="r"><button type="button" data-k="net_pct">手取り%</button></th>
+          <th data-field="gy_m2" class="r"><button type="button" data-k="gy_m2">業者の仕入れ ㎡(万円)</button></th>
+          <th data-field="gy_man" class="r"><button type="button" data-k="gy_man">業者の仕入れ値(万円)</button></th>
+          <th data-field="be_man" class="r"><button type="button" data-k="be_man">4.1%に並ぶ買値(万円)</button></th>
+          <th data-field="gap_pct" class="r"><button type="button" data-k="gap_pct">必要な値下げ</button></th>
+          <th data-field="note" class="hide-n"><button type="button" data-k="note">根拠・メモ</button></th>
+          <th data-field="mr_url"><button type="button" data-k="mr_name">MR</button></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+  <section class="lq-card" id="uri-cos">
+    <h2>売主の会社</h2>
+    <p class="sub">件数の多い順。会社名を押すと上の表をその会社に絞る（もう一度押すと解除）。</p>
+    <div class="lq-wrap">
+      <table id="t-uco"><thead><tr><th>会社</th><th class="r">件数</th><th>区</th><th class="r">並ぶ買値以下</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+</template>
 
 <script>
 dash.calc('listing_rows', {
@@ -238,6 +290,12 @@ dash.calc('yield_summary', {
   description: '該当する部屋の数、売り出しのままで手取り6%以上の数、手取りの最高、80戸以上の建物の数。',
   inputs: ['yield_hits'],
   fn: (yield_hits) => [{n: yield_hits.length, n6: yield_hits.filter(r => Number(r.net_pct) >= 6).length, top: yield_hits.length ? Math.max(...yield_hits.map(r => Number(r.net_pct))) : null, big: yield_hits.filter(r => Number(r.units) >= 80).length}]
+});
+dash.calc('uri_summary', {
+  title: '売主（業者）のまとめ',
+  description: '業者が売主の部屋の数、会社の数、並ぶ買値以下の数、あと1割で届く数。',
+  inputs: ['urinushi'],
+  fn: (u) => [{n: u.length, cos: new Set(u.map(r => r.company)).size, win: u.filter(r => r.gap_pct != null && Number(r.gap_pct) <= 0).length, near: u.filter(r => r.gap_pct != null && Number(r.gap_pct) > 0 && Number(r.gap_pct) <= 10).length}]
 });
 dash.calc('summary', {
   title: '台帳のまとめ',
@@ -401,27 +459,92 @@ dash.calc('summary', {
     document.getElementById('y-big').addEventListener('click', () => { yst.big = true; seg(); drawYield(); });
     document.querySelectorAll('#t-yield th button').forEach(b => b.addEventListener('click', () => { yst.sort = yst.sort[0] === b.dataset.k ? [yst.sort[0], -yst.sort[1]] : [b.dataset.k, b.dataset.k === 'net_pct' ? -1 : 1]; drawYield(); }));
   }
+  const ust = { q: '', co: '', sort: ['gap_pct', 1], ready: false };
+  function drawUri() {
+    if (!ust.ready) return;
+    const s = dash.data('uri_summary');
+    document.querySelectorAll('[data-source="uri_summary"][data-field]').forEach(t => {
+      if (s.status !== 'ok' || !s.data.length) { t.textContent = '—'; if (s.status !== 'loading') t.classList.remove('dash-skeleton'); return; }
+      t.textContent = num(s.data[0][t.dataset.field]); t.classList.remove('dash-skeleton');
+    });
+    const t = document.getElementById('t-uri'), tb = t.querySelector('tbody');
+    const d = dash.data('urinushi');
+    if (d.status === 'error') return failRow(tb, 15);
+    if (d.status !== 'ok') { tb.replaceChildren(); return; }
+    const chip = document.getElementById('uchip');
+    if (ust.co) { chip.hidden = false; chip.replaceChildren(document.createTextNode(`売主：${ust.co}`)); const b = el('button', null, '解除'); b.type = 'button'; b.addEventListener('click', () => { ust.co = ''; drawUri(); }); chip.appendChild(b); } else { chip.hidden = true; }
+    const N = v => v == null || v === '' ? null : Number(v);
+    const all = d.data.map(r => ({...r, built: N(r.built), area_m2: N(r.area_m2), price_man: N(r.price_man), m2_man: N(r.m2_man), fee_month: N(r.fee_month), rent_month: N(r.rent_month), net_pct: N(r.net_pct), gy_m2: N(r.gy_m2), gy_man: N(r.gy_man), be_man: N(r.be_man), gap_pct: N(r.gap_pct)}));
+    const q = ust.q.trim().toLowerCase();
+    let rows = all.filter(r => (!ust.co || r.company === ust.co) && (!q || [r.company, r.addr, r.bname, r.mr_name, r.station].join(' ').toLowerCase().includes(q)));
+    const c = cmp(ust.sort[0], ust.sort[1]);
+    rows.sort((a, b) => ((a[ust.sort[0]] == null) - (b[ust.sort[0]] == null)) || c(a, b));
+    setSortMarks(t, ust.sort);
+    tb.replaceChildren(...rows.map(r => {
+      const tr = el('tr'); tr.dataset.key = r.key;
+      tr.appendChild(el('td', null, r.company));
+      const a = el('td', 'nm'); a.appendChild(link(r.addr + (r.floor ? ' ' + r.floor : ''), r.url)); if (r.mr_name || r.bname) a.appendChild(el('div', 'muted', r.mr_name || r.bname)); if (r.station) a.appendChild(el('div', 'muted', r.station)); if (r.genkyo && r.genkyo !== '賃貸中') a.appendChild(el('div', 'muted', '現況：' + r.genkyo)); tr.appendChild(a);
+      tr.appendChild(el('td', 'r', r.built == null ? '—' : String(r.built)));
+      tr.appendChild(el('td', 'r', num(r.area_m2, 2)));
+      tr.appendChild(el('td', 'r', num(r.price_man)));
+      tr.appendChild(el('td', 'r hide-n', num(r.m2_man, 1)));
+      tr.appendChild(el('td', 'r hide-n', num(r.fee_month)));
+      tr.appendChild(el('td', 'r hide-n', num(r.rent_month)));
+      tr.appendChild(el('td', 'r', num(r.net_pct, 1)));
+      tr.appendChild(el('td', 'r', num(r.gy_m2, 1)));
+      tr.appendChild(el('td', 'r', num(r.gy_man)));
+      tr.appendChild(el('td', 'r', num(r.be_man)));
+      const g = el('td', 'r'); if (r.gap_pct == null) g.textContent = '—'; else { const weak = r.basis_rank === '弱'; g.appendChild(el('span', 'pill' + (weak ? '' : r.gap_pct <= 0 ? ' buy' : r.gap_pct <= 10 ? ' near' : ''), r.gap_pct <= 0 ? '届いている' : num(r.gap_pct, 0) + '%')); if (r.basis_rank) g.appendChild(el('div', 'muted', '確からしさ' + r.basis_rank)); } tr.appendChild(g);
+      tr.appendChild(el('td', 'hide-n muted note-c', r.note));
+      const m = el('td'); m.appendChild(r.mr_url ? link('MR', r.mr_url) : el('span', 'muted', '—')); tr.appendChild(m);
+      return tr;
+    }));
+    if (!rows.length) { const tr = el('tr'); const td = el('td', 'muted', '条件に合う部屋はありません'); td.colSpan = 15; tr.appendChild(td); tb.appendChild(tr); }
+    const ct = document.querySelector('#t-uco tbody');
+    const cm = new Map();
+    all.forEach(r => { const x = cm.get(r.company) || {n: 0, wards: new Set(), win: 0}; x.n++; x.wards.add(r.ward); if (r.gap_pct != null && r.gap_pct <= 0) x.win++; cm.set(r.company, x); });
+    ct.replaceChildren(...[...cm.entries()].sort((a, b) => b[1].n - a[1].n || a[0].localeCompare(b[0], 'ja')).map(([co, x]) => {
+      const tr = el('tr');
+      const td = el('td'); const btn = el('button', 'cnt', co); btn.type = 'button'; btn.addEventListener('click', () => { ust.co = ust.co === co ? '' : co; drawUri(); document.getElementById('uri-list').scrollIntoView({behavior: 'smooth', block: 'start'}); }); td.appendChild(btn); tr.appendChild(td);
+      tr.appendChild(el('td', 'r', num(x.n)));
+      tr.appendChild(el('td', 'muted', [...x.wards].join('・')));
+      tr.appendChild(el('td', 'r', num(x.win)));
+      return tr;
+    }));
+  }
+  function mountUri() {
+    if (ust.ready) return;
+    document.getElementById('uri').appendChild(document.getElementById('tpl-uri').content.cloneNode(true));
+    ust.ready = true;
+    document.getElementById('q-uri').addEventListener('input', e => { ust.q = e.target.value; drawUri(); });
+    document.querySelectorAll('#t-uri th button').forEach(b => b.addEventListener('click', () => { ust.sort = ust.sort[0] === b.dataset.k ? [ust.sort[0], -ust.sort[1]] : [b.dataset.k, b.dataset.k === 'net_pct' ? -1 : 1]; drawUri(); }));
+  }
   function show(p) {
     page = p;
     document.getElementById('ledger').hidden = p !== 'ledger';
     document.getElementById('yield').hidden = p !== 'yield';
+    document.getElementById('uri').hidden = p !== 'uri';
     document.getElementById('tab-ledger').setAttribute('aria-selected', String(p === 'ledger'));
     document.getElementById('tab-yield').setAttribute('aria-selected', String(p === 'yield'));
+    document.getElementById('tab-uri').setAttribute('aria-selected', String(p === 'uri'));
     if (p === 'yield') { mountYield(); drawYield(); }
+    if (p === 'uri') { mountUri(); drawUri(); }
     dash.setLink(p);
   }
   document.getElementById('tab-ledger').addEventListener('click', () => show('ledger'));
   document.getElementById('tab-yield').addEventListener('click', () => show('yield'));
+  document.getElementById('tab-uri').addEventListener('click', () => show('uri'));
 
-  dash.onData(() => { drawSummary(); drawListings(); drawBuildings(); if (page === 'yield') drawYield(); });
+  dash.onData(() => { drawSummary(); drawListings(); drawBuildings(); if (page === 'yield') drawYield(); if (page === 'uri') drawUri(); });
   const hash = location.hash.slice(1);
   if (hash === 'yield' || hash === 'yield-list') show('yield');
+  else if (hash === 'uri' || hash === 'uri-list') show('uri');
   else { const named = document.getElementById(hash); if (named) { named.scrollIntoView(); dash.setLink(named.id); } }
 
 })();
 </script>
 
-<p class="foot" style="margin-top:1.5rem;font-size:.8125rem;color:var(--color-fg-muted)">データ：data/buildings.json（58棟）・data/listings.json（売り出し中の部屋）・data/yield_hits.json（高利回り・健美家）。更新は Claude に「台帳を更新して」。</p>
+<p class="foot" style="margin-top:1.5rem;font-size:.8125rem;color:var(--color-fg-muted)">データ：data/buildings.json（58棟）・data/listings.json（売り出し中の部屋）・data/yield_hits.json（高利回り・健美家）・data/urinushi.json（売主＝業者・不動産ジャパン＋マンションレビュー）。更新は Claude に「台帳を更新して」。</p>
 </div>
 </body>
 </html>
