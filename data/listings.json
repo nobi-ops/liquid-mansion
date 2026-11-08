@@ -197,9 +197,10 @@
   "aim_price": 2153,
   "max_price": 2181,
   "comp_n": 10,
-  "judge": "対象外（空室・居住中）",
+  "judge": "掲載終了（11/9・売れたか取り下げ）",
   "cut_needed": null,
-  "basis": "同じくらいの広さ"
+  "basis": "同じくらいの広さ",
+  "judge_before_end": "対象外（空室・居住中）"
  },
  {
   "key": "FJ13688524",
@@ -2208,7 +2209,7 @@
   "floor": "7階",
   "madori": "2LDK",
   "area_m2": 52.04,
-  "price_man": 6780,
+  "price_man": 6480,
   "genkyo": "不明（空室か居住中）",
   "company": "",
   "url": "https://www.athome.co.jp/mansion/1197103024/",
@@ -2219,6 +2220,27 @@
   "exit_price": 5579,
   "aim_price": 4354,
   "max_price": 4412,
+  "judge": "対象外（空室・居住中）",
+  "cut_needed": null
+ },
+ {
+  "key": "AH1199987413",
+  "building": "松見坂武蔵野マンション",
+  "site": "アットホーム",
+  "floor": "5階",
+  "madori": "2LDK",
+  "area_m2": 47.43,
+  "price_man": 5780,
+  "genkyo": "不明（空室か居住中）",
+  "company": "",
+  "url": "https://www.athome.co.jp/mansion/1199987413/",
+  "exit_m2": 107.2,
+  "comp_n": 9,
+  "basis": "建物の相場（自動・要確認）",
+  "first_seen": "2026-11-09",
+  "exit_price": 5084,
+  "aim_price": 3960,
+  "max_price": 4012,
   "judge": "対象外（空室・居住中）",
   "cut_needed": null
  }
