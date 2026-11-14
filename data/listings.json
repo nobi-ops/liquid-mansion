@@ -419,10 +419,9 @@
   "aim_price": 8832,
   "max_price": 8948,
   "comp_n": 8,
-  "judge": "掲載終了（11/13・売れたか取り下げ）",
+  "judge": "対象外（空室・居住中）",
   "cut_needed": null,
-  "basis": "同じくらいの広さ",
-  "judge_before_end": "対象外（空室・居住中）"
+  "basis": "同じくらいの広さ"
  },
  {
   "key": "FJ13562590",
@@ -541,9 +540,10 @@
   "aim_price": 4911,
   "max_price": 4975,
   "comp_n": 7,
-  "judge": "対象外（空室・居住中）",
+  "judge": "掲載終了（11/15・売れたか取り下げ）",
   "cut_needed": null,
-  "basis": "同じくらいの広さ"
+  "basis": "同じくらいの広さ",
+  "judge_before_end": "対象外（空室・居住中）"
  },
  {
   "key": "FJ10746569",
@@ -815,14 +815,14 @@
   "floor": "5階",
   "madori": "ワンルーム",
   "area_m2": 31.34,
-  "price_man": 3298,
+  "price_man": 3198,
   "genkyo": "空家",
   "company": "三井不動産リアルティ（株）三井のリハウス新宿センター",
   "url": "https://www.fudousan.or.jp/property/detail?p_no=000013575937",
   "exit_m2": 92.1,
-  "exit_price": 2887,
-  "aim_price": 2211,
-  "max_price": 2241,
+  "exit_price": 2886,
+  "aim_price": 2210,
+  "max_price": 2239,
   "comp_n": 4,
   "judge": "対象外（空室・居住中）",
   "cut_needed": null,
@@ -1712,8 +1712,9 @@
   "exit_price": 4700,
   "aim_price": 3654,
   "max_price": 3703,
-  "judge": "対象外（空室・居住中）",
-  "cut_needed": null
+  "judge": "掲載終了（11/15・売れたか取り下げ）",
+  "cut_needed": null,
+  "judge_before_end": "対象外（空室・居住中）"
  },
  {
   "key": "FJ13875066",
