@@ -128,14 +128,14 @@
   "floor": "17階",
   "madori": "1LDK",
   "area_m2": 60.39,
-  "price_man": 8500,
+  "price_man": 7900,
   "genkyo": "空家",
   "company": "三井不動産リアルティ（株）三井のリハウス月島センター",
   "url": "https://www.fudousan.or.jp/property/detail?p_no=000013843609",
   "exit_m2": 147,
-  "exit_price": 8878,
-  "aim_price": 6982,
-  "max_price": 7074,
+  "exit_price": 8877,
+  "aim_price": 6980,
+  "max_price": 7073,
   "comp_n": 8,
   "judge": "対象外（空室・居住中）",
   "cut_needed": null,
@@ -531,19 +531,18 @@
   "floor": "5階",
   "madori": "2LDK",
   "area_m2": 58.8,
-  "price_man": 7499,
+  "price_man": 7199,
   "genkyo": "空家",
   "company": "青山中央地所 株式会社",
   "url": "https://www.fudousan.or.jp/property/detail?p_no=000013798772",
   "exit_m2": 106.8,
-  "exit_price": 6277,
-  "aim_price": 4911,
-  "max_price": 4975,
+  "exit_price": 6280,
+  "aim_price": 4912,
+  "max_price": 4977,
   "comp_n": 7,
-  "judge": "掲載終了（11/15・売れたか取り下げ）",
+  "judge": "対象外（空室・居住中）",
   "cut_needed": null,
-  "basis": "同じくらいの広さ",
-  "judge_before_end": "対象外（空室・居住中）"
+  "basis": "同じくらいの広さ"
  },
  {
   "key": "FJ10746569",
@@ -764,9 +763,10 @@
   "aim_price": 8010,
   "max_price": 8116,
   "comp_n": 3,
-  "judge": "対象外（空室・居住中）",
+  "judge": "掲載終了（11/18・売れたか取り下げ）",
   "cut_needed": null,
-  "basis": "同じくらいの広さ"
+  "basis": "同じくらいの広さ",
+  "judge_before_end": "対象外（空室・居住中）"
  },
  {
   "key": "FJ13600101",
@@ -1285,9 +1285,10 @@
   "aim_price": 9834,
   "max_price": 9964,
   "comp_n": 4,
-  "judge": "対象外（空室・居住中）",
+  "judge": "掲載終了（11/18・売れたか取り下げ）",
   "cut_needed": null,
-  "basis": "同じくらいの広さ"
+  "basis": "同じくらいの広さ",
+  "judge_before_end": "対象外（空室・居住中）"
  },
  {
   "key": "FJ13815901",
@@ -1712,9 +1713,8 @@
   "exit_price": 4700,
   "aim_price": 3654,
   "max_price": 3703,
-  "judge": "掲載終了（11/15・売れたか取り下げ）",
-  "cut_needed": null,
-  "judge_before_end": "対象外（空室・居住中）"
+  "judge": "対象外（空室・居住中）",
+  "cut_needed": null
  },
  {
   "key": "FJ13875066",
@@ -2012,8 +2012,9 @@
   "exit_price": 3574,
   "aim_price": 2758,
   "max_price": 2794,
-  "judge": "対象外（空室・居住中）",
-  "cut_needed": null
+  "judge": "掲載終了（11/18・売れたか取り下げ）",
+  "cut_needed": null,
+  "judge_before_end": "対象外（空室・居住中）"
  },
  {
   "key": "AH1033288687",
@@ -2245,8 +2246,9 @@
   "exit_price": 5084,
   "aim_price": 3960,
   "max_price": 4012,
-  "judge": "対象外（空室・居住中）",
-  "cut_needed": null
+  "judge": "掲載終了（11/18・売れたか取り下げ）",
+  "cut_needed": null,
+  "judge_before_end": "対象外（空室・居住中）"
  },
  {
   "key": "FJ13670610",
@@ -2392,6 +2394,48 @@
   "exit_price": 4368,
   "aim_price": 3390,
   "max_price": 3435,
+  "judge": "対象外（空室・居住中）",
+  "cut_needed": null
+ },
+ {
+  "key": "FJ13967569",
+  "building": "四谷ガーデニア",
+  "site": "不動産ジャパン",
+  "floor": "5階部分",
+  "madori": "ワンルーム",
+  "area_m2": 20.25,
+  "price_man": 2480,
+  "genkyo": "賃貸中",
+  "company": "住友不動産ステップ（株）本社営業センター",
+  "url": "https://www.fudousan.or.jp/property/detail?p_no=000013967569",
+  "exit_m2": 130.6,
+  "comp_n": 7,
+  "basis": "建物の相場（自動・要確認）",
+  "first_seen": "2026-11-18",
+  "exit_price": 2645,
+  "aim_price": 2018,
+  "max_price": 2045,
+  "judge": "指値が必要",
+  "cut_needed": 462
+ },
+ {
+  "key": "FJ13973477",
+  "building": "四谷御苑マンション",
+  "site": "不動産ジャパン",
+  "floor": "10階部分",
+  "madori": "1LDK",
+  "area_m2": 37.23,
+  "price_man": 3880,
+  "genkyo": "空家",
+  "company": "株式会社 エニシア・パートナーズ",
+  "url": "https://www.fudousan.or.jp/property/detail?p_no=000013973477",
+  "exit_m2": 96,
+  "comp_n": 6,
+  "basis": "建物の相場（自動・要確認）",
+  "first_seen": "2026-11-18",
+  "exit_price": 3574,
+  "aim_price": 2758,
+  "max_price": 2794,
   "judge": "対象外（空室・居住中）",
   "cut_needed": null
  }
