@@ -1702,7 +1702,7 @@
   "floor": "6階部分",
   "madori": "1SLDK",
   "area_m2": 49.84,
-  "price_man": 8299,
+  "price_man": 7499,
   "genkyo": "空家",
   "company": "青山中央地所 株式会社",
   "url": "https://www.fudousan.or.jp/property/detail?p_no=000013798469",
@@ -1948,8 +1948,9 @@
   "exit_price": 9625,
   "aim_price": 7576,
   "max_price": 7676,
-  "judge": "対象外（空室・居住中）",
-  "cut_needed": null
+  "judge": "掲載終了（11/19・売れたか取り下げ）",
+  "cut_needed": null,
+  "judge_before_end": "対象外（空室・居住中）"
  },
  {
   "key": "FJ13718108",
