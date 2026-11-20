@@ -1467,9 +1467,10 @@
   "aim_price": 3747,
   "max_price": 3796,
   "comp_n": 5,
-  "judge": "指値が必要",
+  "judge": "掲載終了（11/21・売れたか取り下げ）",
   "cut_needed": 233,
-  "basis": "同じくらいの広さ"
+  "basis": "同じくらいの広さ",
+  "judge_before_end": "指値が必要"
  },
  {
   "key": "AH1016226691",
@@ -1487,9 +1488,10 @@
   "aim_price": 3747,
   "max_price": 3796,
   "comp_n": 5,
-  "judge": "指値が必要",
+  "judge": "掲載終了（11/21・売れたか取り下げ）",
   "cut_needed": 233,
-  "basis": "同じくらいの広さ"
+  "basis": "同じくらいの広さ",
+  "judge_before_end": "指値が必要"
  },
  {
   "key": "AH6950217737",
@@ -1948,9 +1950,8 @@
   "exit_price": 9625,
   "aim_price": 7576,
   "max_price": 7676,
-  "judge": "掲載終了（11/19・売れたか取り下げ）",
-  "cut_needed": null,
-  "judge_before_end": "対象外（空室・居住中）"
+  "judge": "対象外（空室・居住中）",
+  "cut_needed": null
  },
  {
   "key": "FJ13718108",
@@ -2353,8 +2354,9 @@
   "exit_price": 11567,
   "aim_price": 9122,
   "max_price": 9243,
-  "judge": "対象外（空室・居住中）",
-  "cut_needed": null
+  "judge": "掲載終了（11/21・売れたか取り下げ）",
+  "cut_needed": null,
+  "judge_before_end": "対象外（空室・居住中）"
  },
  {
   "key": "FJ13959550",
@@ -2437,6 +2439,48 @@
   "exit_price": 3574,
   "aim_price": 2758,
   "max_price": 2794,
+  "judge": "対象外（空室・居住中）",
+  "cut_needed": null
+ },
+ {
+  "key": "FJ13979494",
+  "building": "マリンロードダイヤモンドパレス",
+  "site": "不動産ジャパン",
+  "floor": "8階部分",
+  "madori": "1K",
+  "area_m2": 21,
+  "price_man": 2080,
+  "genkyo": "賃貸中",
+  "company": "住友不動産ステップ（株）上野営業センター",
+  "url": "https://www.fudousan.or.jp/property/detail?p_no=000013979494",
+  "exit_m2": 89.6,
+  "comp_n": 8,
+  "basis": "建物の相場（自動・要確認）",
+  "first_seen": "2026-11-21",
+  "exit_price": 1882,
+  "aim_price": 1410,
+  "max_price": 1429,
+  "judge": "指値が必要",
+  "cut_needed": 670
+ },
+ {
+  "key": "FJ13981984",
+  "building": "シティフロントタワー",
+  "site": "不動産ジャパン",
+  "floor": "22階部分",
+  "madori": "2LDK",
+  "area_m2": 75.8,
+  "price_man": 12500,
+  "genkyo": "空家",
+  "company": "（株）ファーイースト・ワン",
+  "url": "https://www.fudousan.or.jp/property/detail?p_no=000013981984",
+  "exit_m2": 152.6,
+  "comp_n": 9,
+  "basis": "建物の相場（自動・要確認）",
+  "first_seen": "2026-11-21",
+  "exit_price": 11567,
+  "aim_price": 9122,
+  "max_price": 9243,
   "judge": "対象外（空室・居住中）",
   "cut_needed": null
  }
